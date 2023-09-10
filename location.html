@@ -1,0 +1,122 @@
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geolocation Video</title>
+</head>
+<body>
+    <video id="video" width="640" height="480" controls autoplay>
+        <source src="path/to/your/video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <canvas id="videoCanvas" width="640" height="480"></canvas>
+
+    <div id="locationInfo"></div>
+
+    <script>
+        // Your OpenCage API key
+        var apiKey = 'YOUR_API_KEY';
+
+        // Wait for the page to load
+        window.onload = function () {
+            // Get the video element
+            var video = document.getElementById("video");
+            
+            // Create a canvas element
+            var canvas = document.getElementById("videoCanvas");
+            var ctx = canvas.getContext("2d");
+
+            // Display location information
+            var locationInfo = document.getElementById("locationInfo");
+
+            // Play the video
+            video.play();
+
+            // Function to get location data from API
+            function getLocationData(latitude, longitude) {
+                var url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.results && data.results.length > 0) {
+                            var location = data.results[0];
+                            var city = location.components.city || location.components.town;
+                            var state = location.components.state;
+
+                            locationInfo.innerHTML = `City: ${city}, State: ${state}`;
+                        } else {
+                            locationInfo.innerHTML = "Location data not found";
+                        }
+                    })
+                    .catch(error => {
+                        locationInfo.innerHTML = "Error fetching location data";
+                    });
+            }
+
+            // Draw video frames and overlay geolocation data
+            function drawVideo() {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+               // Get the user's geolocation
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+        // Set fill style to black
+        ctx.fillStyle = "black";
+
+        // Add latitude and longitude to the canvas
+        ctx.font = "14px Arial";
+        ctx.fillText("Latitude: " + position.coords.latitude, 10, 20);
+        ctx.fillText("Longitude: " + position.coords.longitude, 10, 40);
+
+        // Format latitude and longitude
+        var formattedLocation = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+
+        // Update the locationInfo div's inner HTML with the formatted location
+        locationInfo.innerHTML = formattedLocation;
+
+        // Get city and state data
+        getLocationData(position.coords.latitude, position.coords.longitude);
+    });
+}
+
+
+                // Repeat the process for the next frame
+                requestAnimationFrame(drawVideo);
+            }
+
+            // Start drawing video frames
+            drawVideo();
+        }
+    </script>
+</body>
+</html>                
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
